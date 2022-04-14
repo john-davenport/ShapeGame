@@ -3,6 +3,8 @@ import SpriteKit
 
 class Level1: SKScene, ShapeClicked {
     
+    //bindings
+    
     @Binding var value1: Int
     @Binding var value2: String
     @Binding var moves: Int
