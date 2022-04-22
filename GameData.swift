@@ -3,6 +3,9 @@ import SpriteKit
 
 class GameData: ObservableObject {
     
+    //A simple file containing the data that needs to be
+    //passed between the SwiftUI views and the SpriteView
+    
     @Published var value1: Int = 0
     @Published var value2: String = ""
     @Published var moves: Int = 5

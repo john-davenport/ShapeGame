@@ -1,7 +1,10 @@
+//This code was copied from ZER0ED timer functionality
+//which itself was pieced together from internet searches.
+//It could likely be improved or simplified. 
+
 import SpriteKit
 
 class GameTimer: SKLabelNode {
-    
     
     var totalSeconds: CGFloat = 0
     

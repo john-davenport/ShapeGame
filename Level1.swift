@@ -3,20 +3,18 @@ import SpriteKit
 
 class Level1: SKScene, ShapeClicked {
     
-    //bindings
-    
+    //Bindings
     @Binding var value1: Int
     @Binding var value2: String
     @Binding var moves: Int
-    
     @Binding var targetValue: Int
     @Binding var targetColor: String
     @Binding var targetShape: String
-    
     @Binding var timerCount: CGFloat
     
-    var timer = GameTimer()
     
+    
+    //Initialize the bindings
     init(value1: Binding<Int>, value2: Binding<String>, moves: Binding<Int>, targetValue: Binding<Int>, targetColor: Binding<String>, targetShape: Binding<String>, timerCount: Binding<CGFloat>) {
         
         _value1 = value1
@@ -32,22 +30,34 @@ class Level1: SKScene, ShapeClicked {
         
     }
     
-    var shapesOnBoard = [ShapeClass()]
-    var valuesOnBoard = [Int()]
-    var shapeIndex = Int()
-    
-    var levelTimerStart = 30.0
-
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    let shapes = [ "Circle",
-                   "Square"]
-    
+    //Variables
+    var timer = GameTimer()
+    var shape = ShapeClass()
+    var shapesOnBoard = [ShapeClass()]
+    var valuesOnBoard = [Int()]
+    var shapeIndex = Int()
+    var levelTimerStart = 30.0
+
+    //Array of possible colors in the game - note 
+    //this string is the first part of the asset's
+    //file name (i.e. BLUEcircle)
     let colors = [ "Blue",
                    "Orange"]
     
+    
+    //Array of possible shapes in the game - note
+    //this string is the second part of the 
+    //asset's file name (i.e. blueCIRCLE)
+    let shapes = [ "Circle",
+                   "Square"]
+    
+    
+    //An array of the possible grid positions within the gameboard
+    //for shapes to appear.
     let gridPositions = [CGPoint(x: 300, y: 100),
                          CGPoint(x: 300, y: 500),
                          CGPoint(x: 300, y: 300),
@@ -59,18 +69,18 @@ class Level1: SKScene, ShapeClicked {
                          CGPoint(x: 500, y: 300)
     ]
     
-    var shape = ShapeClass()
     
     override func didMove(to view: SKView) {
         
+        //initialize timer and start it when level loads
         timer = GameTimer()
         addChild(timer)
         timer.restartTimer(duration: levelTimerStart)
+        shapesOnBoard = []
         
+        var i = 0 //used to escape the while statement below.
         
-        
-        var i = 0
-        
+        //load the grid
         while i < gridPositions.count {
             let randomColor = getRandomColor()
             let randomShape = getRandomShape()
@@ -86,89 +96,82 @@ class Level1: SKScene, ShapeClicked {
             shapesOnBoard.append(shape)
             valuesOnBoard.append(shape.value)
             addChild(shape)
-        
             i += 1
         }
         
+        //gets the first target color and shape.
         getPlayerTargets()
         
     }
     
     func getPlayerTargets() {
         
-        if shapesOnBoard.count == 1 {
+        //makes sure that at least one
+        //shape is on the board
+        if shapesOnBoard.count == 0 {
             return
         }
         
-        shapeIndex = Int.random(in: 1...(shapesOnBoard.count - 1))
-        targetShape = shapesOnBoard[shapeIndex].shapeShape
+        //picks a random number between 0 and the number of shapes
+        //on the board - 1
+        shapeIndex = Int.random(in: 0...(shapesOnBoard.count - 1))
+        //sets the target's color
         targetColor = shapesOnBoard[shapeIndex].shapeColor
+        //sets the target's shape
+        targetShape = shapesOnBoard[shapeIndex].shapeShape
+        //sets the target's value
         targetValue = shapesOnBoard[shapeIndex].value
-        
-        
         
     }
     
+    //used to pick a random shape from the shape array
     func getRandomShape() -> String {
         
         let randomShape = shapes.randomElement()
-        
         return randomShape!
         
     }
     
+    //used to pick a random color from the color array
     func getRandomColor() -> String {
         
         let randomColor = colors.randomElement()
-        
         return randomColor!
         
     }
     
+    //used to pick a random position from the grid array
     func getRandomPosition() -> CGPoint {
         
         let randomPoint = gridPositions.randomElement()
-        
         return randomPoint!
         
     }
     
+    //actions that should occur when a shape is
+    //clicked by the player on the gameboard.
     func shapeClicked(shape: ShapeClass) {
         
         
         if targetShape == shape.shapeShape && targetColor == shape.shapeColor && shape.value == targetValue {
             
+            //if the shape clicked matches the shape, color and value
+            //of the target then do something positive for the player.
             shape.removeFromParent()
             shapesOnBoard.remove(at: shapeIndex)
             getPlayerTargets()
             
         } else {
             
-            //I don't know what to do here yet
+            //I don't know what to do here yet... something negative maybe?
             
         }
-        
-        
-        
-        
-        
-//        if shape.value == targetValue && shape.shapeColor == targetColor {
-//            print("Woohoo")
-//            shape.removeFromParent()
-//            targetColor = getRandomShape()
-//            targetValue = Int.random(in: 1...5)
-//            moves += 1
-//        } else {
-//            print("wrong!")
-//            moves -= 1
-//        }
     }
     
     override func update(_ currentTime: TimeInterval) {
         
+        //update the timer
         timerCount = timer.totalSeconds
-        
-        
         
     }
     
