@@ -8,14 +8,14 @@ class Level1: SKScene, ShapeClicked {
     @Binding var value2: String
     @Binding var moves: Int
     @Binding var targetValue: Int
-    @Binding var targetColor: String
+    @Binding var targetColor: UIColor
     @Binding var targetShape: String
     @Binding var timerCount: CGFloat
-    
-    
+    @Binding var playerPoints: Int
+    @Binding var gameState: String
     
     //Initialize the bindings
-    init(value1: Binding<Int>, value2: Binding<String>, moves: Binding<Int>, targetValue: Binding<Int>, targetColor: Binding<String>, targetShape: Binding<String>, timerCount: Binding<CGFloat>) {
+    init(value1: Binding<Int>, value2: Binding<String>, moves: Binding<Int>, targetValue: Binding<Int>, targetColor: Binding<UIColor>, targetShape: Binding<String>, timerCount: Binding<CGFloat>, playerPoints: Binding<Int>, gameState: Binding<String>) {
         
         _value1 = value1
         _value2 = value2
@@ -24,6 +24,8 @@ class Level1: SKScene, ShapeClicked {
         _targetColor = targetColor
         _targetShape = targetShape
         _timerCount = timerCount
+        _playerPoints = playerPoints
+        _gameState = gameState
         
         super.init(size: CGSize(width: 600, height: 600))
         self.scaleMode = .fill
@@ -41,19 +43,24 @@ class Level1: SKScene, ShapeClicked {
     var valuesOnBoard = [Int()]
     var shapeIndex = Int()
     var levelTimerStart = 30.0
+    var level = 1
 
     //Array of possible colors in the game - note 
     //this string is the first part of the asset's
     //file name (i.e. BLUEcircle)
-    let colors = [ "Blue",
-                   "Orange"]
+    let colors = [ UIColor(.blue),
+                   UIColor(.orange),
+                   UIColor(.purple),
+                   UIColor(.green)]
     
     
     //Array of possible shapes in the game - note
     //this string is the second part of the 
     //asset's file name (i.e. blueCIRCLE)
     let shapes = [ "Circle",
-                   "Square"]
+                   "Square",
+                   "Diamond",
+                   "Star"]
     
     
     //An array of the possible grid positions within the gameboard
@@ -84,12 +91,13 @@ class Level1: SKScene, ShapeClicked {
         while i < gridPositions.count {
             let randomColor = getRandomColor()
             let randomShape = getRandomShape()
-            let textureString = randomColor + randomShape
-            shape = ShapeClass(texture: SKTexture(imageNamed: textureString), color: .clear, size: CGSize(width: 150, height: 150))
+            let textureString = randomShape
+            shape = ShapeClass(texture: SKTexture(imageNamed: textureString), color: randomColor, size: CGSize(width: 150, height: 150))
             shape.position = gridPositions[i]
             shape.delegate = self
-            shape.shapeColor = randomColor
+            //shape.shapeColor = randomColor
             shape.shapeShape = randomShape
+            shape.colorBlendFactor = 1
             shape.value = Int.random(in: 1...5)
             shape.label.text = "\(shape.value)"
             shape.label.position = CGPoint(x: 0, y: -20)
@@ -104,11 +112,56 @@ class Level1: SKScene, ShapeClicked {
         
     }
     
+    func resetBoard() {
+        
+        playerPoints += level * Int(timer.totalSeconds)
+        timer.restartTimer(duration: 30 - CGFloat(level * 3))
+        level += 1
+        
+        if level > 5 {
+            
+            print("You've won!")
+            
+        }
+        
+        shapesOnBoard = []
+        
+        var i = 0 //used to escape the while statement below.
+        
+        //load the grid
+        while i < gridPositions.count {
+            let randomColor = getRandomColor()
+            let randomShape = getRandomShape()
+            let textureString = randomShape
+            shape = ShapeClass(texture: SKTexture(imageNamed: textureString), color: randomColor, size: CGSize(width: 150, height: 150))
+            shape.position = gridPositions[i]
+            shape.delegate = self
+            //shape.shapeColor = randomColor
+            shape.shapeShape = randomShape
+            shape.colorBlendFactor = 1
+            shape.value = Int.random(in: 1...5)
+            shape.label.text = "\(shape.value)"
+            shape.label.position = CGPoint(x: 0, y: -20)
+            shapesOnBoard.append(shape)
+            valuesOnBoard.append(shape.value)
+            addChild(shape)
+            i += 1
+        }
+        
+        //gets the first target color and shape.
+        getPlayerTargets()
+        
+        
+        
+        
+    }
+    
     func getPlayerTargets() {
         
         //makes sure that at least one
         //shape is on the board
         if shapesOnBoard.count == 0 {
+            resetBoard()
             return
         }
         
@@ -116,7 +169,7 @@ class Level1: SKScene, ShapeClicked {
         //on the board - 1
         shapeIndex = Int.random(in: 0...(shapesOnBoard.count - 1))
         //sets the target's color
-        targetColor = shapesOnBoard[shapeIndex].shapeColor
+        targetColor = shapesOnBoard[shapeIndex].color
         //sets the target's shape
         targetShape = shapesOnBoard[shapeIndex].shapeShape
         //sets the target's value
@@ -127,16 +180,42 @@ class Level1: SKScene, ShapeClicked {
     //used to pick a random shape from the shape array
     func getRandomShape() -> String {
         
-        let randomShape = shapes.randomElement()
-        return randomShape!
+        var randomIndex = 0 
+        
+        switch level {
+            
+            case 1: randomIndex = Int.random(in: 0...1)
+            case 2: randomIndex = Int.random(in: 0...2)
+            case 3: randomIndex = Int.random(in: 0...3)
+            case 4: randomIndex = Int.random(in: 0...3)
+            case 5: randomIndex = Int.random(in: 0...3)
+            
+            default: print("no levels beyond 5")
+        }
+        
+        let randomShape = shapes[randomIndex]
+        return randomShape
         
     }
     
     //used to pick a random color from the color array
-    func getRandomColor() -> String {
+    func getRandomColor() -> UIColor {
         
-        let randomColor = colors.randomElement()
-        return randomColor!
+        var randomIndex = 0 
+        
+        switch level {
+            
+        case 1: randomIndex = Int.random(in: 0...1)
+        case 2: randomIndex = Int.random(in: 0...2)
+        case 3: randomIndex = Int.random(in: 0...3)
+        case 4: randomIndex = Int.random(in: 0...3)
+        case 5: randomIndex = Int.random(in: 0...3)
+            
+        default: print("no levels beyond 5")
+        }
+        
+        let randomColor = colors[randomIndex]
+        return randomColor
         
     }
     
@@ -153,16 +232,18 @@ class Level1: SKScene, ShapeClicked {
     func shapeClicked(shape: ShapeClass) {
         
         
-        if targetShape == shape.shapeShape && targetColor == shape.shapeColor && shape.value == targetValue {
+        if targetShape == shape.shapeShape && targetColor == shape.color && shape.value == targetValue {
             
             //if the shape clicked matches the shape, color and value
             //of the target then do something positive for the player.
             shape.removeFromParent()
+            playerPoints += 10
             shapesOnBoard.remove(at: shapeIndex)
             getPlayerTargets()
             
         } else {
             
+            timer.totalSeconds -= CGFloat(1 * level)
             //I don't know what to do here yet... something negative maybe?
             
         }
@@ -172,6 +253,17 @@ class Level1: SKScene, ShapeClicked {
         
         //update the timer
         timerCount = timer.totalSeconds
+        
+        if level > 5 {
+            
+            gameState = "WIN"
+            
+        }
+        
+        
+        if timer.totalSeconds <= 0 {
+            gameState = "LOSS"
+        }
         
     }
     

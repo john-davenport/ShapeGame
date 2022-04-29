@@ -1,7 +1,7 @@
 import SwiftUI
 import SpriteKit
 
-class MainMenu: SKScene {
+class GameOver: SKScene {
     
     @Binding var gameState: String 
     
@@ -13,7 +13,7 @@ class MainMenu: SKScene {
         self.scaleMode = .fill
         
     }
-
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -25,12 +25,12 @@ class MainMenu: SKScene {
     override func didMove(to view: SKView) {
         
         
-        startButton = SKSpriteNode(color: .blue, size: CGSize(width: 350, height: 100))
+        startButton = SKSpriteNode(color: .red, size: CGSize(width: 350, height: 100))
         startButton.position = CGPoint(x: 300, y: 400)
         startButton.name = "startButton"
         addChild(startButton)
         
-        startButtonLabel.text = "Start Game"
+        startButtonLabel.text = "You Lost"
         startButtonLabel.fontSize = 40
         startButtonLabel.fontName = "American Typewriter Bold"
         startButtonLabel.position = CGPoint(x: 0, y: -15)
