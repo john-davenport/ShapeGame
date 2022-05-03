@@ -51,20 +51,9 @@ class GameOver: SKScene {
         let touchedNodes = nodes(at: location)
         
         for n in touchedNodes {
-            
             if n.name == "startButton" {
-                
                 gameState = "PLAYING"
-                
             }
-            
-            
         }
-        
-        
-        
-        
     }
-    
-    
 }

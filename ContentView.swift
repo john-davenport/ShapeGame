@@ -94,11 +94,7 @@ struct ContentView: View {
                 SpriteView(scene: winScene)
                     .scaledToFit()
                     .padding()
-                
             }
-            
-            
-        
         }
         
         Text("Current Score")

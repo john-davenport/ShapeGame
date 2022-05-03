@@ -45,18 +45,14 @@ class Level1: SKScene, ShapeClicked {
     var levelTimerStart = 30.0
     var level = 1
 
-    //Array of possible colors in the game - note 
-    //this string is the first part of the asset's
-    //file name (i.e. BLUEcircle)
+    //Array of possible colors in the game
     let colors = [ UIColor(.blue),
                    UIColor(.orange),
                    UIColor(.purple),
                    UIColor(.green)]
     
     
-    //Array of possible shapes in the game - note
-    //this string is the second part of the 
-    //asset's file name (i.e. blueCIRCLE)
+    //Array of possible shapes in the game
     let shapes = [ "Circle",
                    "Square",
                    "Diamond",
@@ -83,7 +79,8 @@ class Level1: SKScene, ShapeClicked {
         timer = GameTimer()
         addChild(timer)
         timer.restartTimer(duration: levelTimerStart)
-        shapesOnBoard = []
+        
+        shapesOnBoard = [] // ensure shapes on board is empty at start
         
         var i = 0 //used to escape the while statement below.
         
@@ -95,7 +92,6 @@ class Level1: SKScene, ShapeClicked {
             shape = ShapeClass(texture: SKTexture(imageNamed: textureString), color: randomColor, size: CGSize(width: 150, height: 150))
             shape.position = gridPositions[i]
             shape.delegate = self
-            //shape.shapeColor = randomColor
             shape.shapeShape = randomShape
             shape.colorBlendFactor = 1
             shape.value = Int.random(in: 1...5)
@@ -114,16 +110,14 @@ class Level1: SKScene, ShapeClicked {
     
     func resetBoard() {
         
+        //give player points for beating previous level
         playerPoints += level * Int(timer.totalSeconds)
+        //reset timer for new level
         timer.restartTimer(duration: 30 - CGFloat(level * 3))
+        //increase level
         level += 1
         
-        if level > 5 {
-            
-            print("You've won!")
-            
-        }
-        
+        //ensure shapes on board is empty at start of new level
         shapesOnBoard = []
         
         var i = 0 //used to escape the while statement below.
@@ -150,10 +144,6 @@ class Level1: SKScene, ShapeClicked {
         
         //gets the first target color and shape.
         getPlayerTargets()
-        
-        
-        
-        
     }
     
     func getPlayerTargets() {
@@ -161,6 +151,7 @@ class Level1: SKScene, ShapeClicked {
         //makes sure that at least one
         //shape is on the board
         if shapesOnBoard.count == 0 {
+            //reset board when player has cleared it
             resetBoard()
             return
         }
@@ -182,8 +173,9 @@ class Level1: SKScene, ShapeClicked {
         
         var randomIndex = 0 
         
+        //the random index determines how many shapes & colors
+        //to choose from for each level.
         switch level {
-            
             case 1: randomIndex = Int.random(in: 0...1)
             case 2: randomIndex = Int.random(in: 0...2)
             case 3: randomIndex = Int.random(in: 0...3)
@@ -204,7 +196,7 @@ class Level1: SKScene, ShapeClicked {
         var randomIndex = 0 
         
         switch level {
-            
+        
         case 1: randomIndex = Int.random(in: 0...1)
         case 2: randomIndex = Int.random(in: 0...2)
         case 3: randomIndex = Int.random(in: 0...3)
@@ -212,6 +204,7 @@ class Level1: SKScene, ShapeClicked {
         case 5: randomIndex = Int.random(in: 0...3)
             
         default: print("no levels beyond 5")
+        
         }
         
         let randomColor = colors[randomIndex]
@@ -254,13 +247,12 @@ class Level1: SKScene, ShapeClicked {
         //update the timer
         timerCount = timer.totalSeconds
         
+        //player wins when they clear five levels
         if level > 5 {
-            
             gameState = "WIN"
-            
         }
         
-        
+        //player loses if the timer hits zero
         if timer.totalSeconds <= 0 {
             gameState = "LOSS"
         }

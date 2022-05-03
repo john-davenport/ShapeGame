@@ -24,18 +24,18 @@ class MainMenu: SKScene {
     
     override func didMove(to view: SKView) {
         
-        
+        //create start button
         startButton = SKSpriteNode(color: .blue, size: CGSize(width: 350, height: 100))
         startButton.position = CGPoint(x: 300, y: 400)
         startButton.name = "startButton"
         addChild(startButton)
         
+        //add label to start button
         startButtonLabel.text = "Start Game"
         startButtonLabel.fontSize = 40
         startButtonLabel.fontName = "American Typewriter Bold"
         startButtonLabel.position = CGPoint(x: 0, y: -15)
         startButton.addChild(startButtonLabel)
-        
         
     }
     
@@ -50,21 +50,11 @@ class MainMenu: SKScene {
         
         let touchedNodes = nodes(at: location)
         
+        //change gameState based on button name
         for n in touchedNodes {
-            
             if n.name == "startButton" {
-                
                 gameState = "PLAYING"
-                
             }
-            
-            
         }
-        
-        
-        
-        
     }
-    
-    
 }
