@@ -5,7 +5,9 @@ class GameData: ObservableObject {
     
     //A simple file containing the data that needs to be
     //passed between the SwiftUI views and the SpriteView
+    
     @Published var gameState: String = "MAIN"
+    @Published var isPlaying: Bool = false
     
     @Published var value1: Int = 0
     @Published var value2: String = ""

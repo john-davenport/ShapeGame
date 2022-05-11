@@ -13,7 +13,7 @@ class MainMenu: SKScene {
         self.scaleMode = .fill
         
     }
-
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -22,20 +22,34 @@ class MainMenu: SKScene {
     var startButton = SKSpriteNode()
     var startButtonLabel = SKLabelNode()
     
+    var highScoreButton = SKSpriteNode()
+    var highScoreButtonLabel = SKLabelNode()
+    
     override func didMove(to view: SKView) {
         
-        //create start button
+        
         startButton = SKSpriteNode(color: .blue, size: CGSize(width: 350, height: 100))
         startButton.position = CGPoint(x: 300, y: 400)
         startButton.name = "startButton"
         addChild(startButton)
         
-        //add label to start button
         startButtonLabel.text = "Start Game"
         startButtonLabel.fontSize = 40
         startButtonLabel.fontName = "American Typewriter Bold"
         startButtonLabel.position = CGPoint(x: 0, y: -15)
         startButton.addChild(startButtonLabel)
+        
+        highScoreButton = SKSpriteNode(color: .red, size: CGSize(width: 350, height: 100))
+        highScoreButton.position = CGPoint(x: 300, y: 200)
+        highScoreButton.name = "highScore"
+        addChild(highScoreButton)
+        
+        highScoreButtonLabel.text = "High Scores"
+        highScoreButtonLabel.fontSize = 40
+        highScoreButtonLabel.fontName = "American Typewriter Bold"
+        highScoreButtonLabel.position = CGPoint(x: 0, y: -15)
+        highScoreButton.addChild(highScoreButtonLabel)
+        
         
     }
     
@@ -50,11 +64,31 @@ class MainMenu: SKScene {
         
         let touchedNodes = nodes(at: location)
         
-        //change gameState based on button name
         for n in touchedNodes {
+            
             if n.name == "startButton" {
+                
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.impactOccurred()
+                
                 gameState = "PLAYING"
+                
+            } else if n.name == "highScore" {
+                
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.impactOccurred()
+                
+                gameState = "HIGHSCORE"
+                
             }
+            
+            
         }
+        
+        
+        
+        
     }
+    
+    
 }

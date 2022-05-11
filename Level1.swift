@@ -13,9 +13,10 @@ class Level1: SKScene, ShapeClicked {
     @Binding var timerCount: CGFloat
     @Binding var playerPoints: Int
     @Binding var gameState: String
+    @Binding var isPlaying: Bool
     
     //Initialize the bindings
-    init(value1: Binding<Int>, value2: Binding<String>, moves: Binding<Int>, targetValue: Binding<Int>, targetColor: Binding<UIColor>, targetShape: Binding<String>, timerCount: Binding<CGFloat>, playerPoints: Binding<Int>, gameState: Binding<String>) {
+    init(value1: Binding<Int>, value2: Binding<String>, moves: Binding<Int>, targetValue: Binding<Int>, targetColor: Binding<UIColor>, targetShape: Binding<String>, timerCount: Binding<CGFloat>, playerPoints: Binding<Int>, gameState: Binding<String>, isPlaying: Binding<Bool>) {
         
         _value1 = value1
         _value2 = value2
@@ -26,6 +27,7 @@ class Level1: SKScene, ShapeClicked {
         _timerCount = timerCount
         _playerPoints = playerPoints
         _gameState = gameState
+        _isPlaying = isPlaying
         
         super.init(size: CGSize(width: 600, height: 600))
         self.scaleMode = .fill
@@ -44,15 +46,21 @@ class Level1: SKScene, ShapeClicked {
     var shapeIndex = Int()
     var levelTimerStart = 30.0
     var level = 1
-
-    //Array of possible colors in the game
+    var highScore = Int()
+    var currentHighScore = Int()
+    
+    //Array of possible colors in the game - note 
+    //this string is the first part of the asset's
+    //file name (i.e. BLUEcircle)
     let colors = [ UIColor(.blue),
                    UIColor(.orange),
                    UIColor(.purple),
                    UIColor(.green)]
     
     
-    //Array of possible shapes in the game
+    //Array of possible shapes in the game - note
+    //this string is the second part of the 
+    //asset's file name (i.e. blueCIRCLE)
     let shapes = [ "Circle",
                    "Square",
                    "Diamond",
@@ -75,12 +83,20 @@ class Level1: SKScene, ShapeClicked {
     
     override func didMove(to view: SKView) {
         
+        currentHighScore = UserDefaults().integer(forKey: "highScore")
+        
         //initialize timer and start it when level loads
         timer = GameTimer()
         addChild(timer)
         timer.restartTimer(duration: levelTimerStart)
+        shapesOnBoard = []
         
-        shapesOnBoard = [] // ensure shapes on board is empty at start
+        //if the player wins (i.e. completes all five levels
+        //the player's scorre needs to be shown on the win screen
+        //otherwise the score needs to be reset.
+        if gameState != "WIN" {
+            playerPoints = 0
+        }
         
         var i = 0 //used to escape the while statement below.
         
@@ -92,6 +108,7 @@ class Level1: SKScene, ShapeClicked {
             shape = ShapeClass(texture: SKTexture(imageNamed: textureString), color: randomColor, size: CGSize(width: 150, height: 150))
             shape.position = gridPositions[i]
             shape.delegate = self
+            //shape.shapeColor = randomColor
             shape.shapeShape = randomShape
             shape.colorBlendFactor = 1
             shape.value = Int.random(in: 1...5)
@@ -110,14 +127,10 @@ class Level1: SKScene, ShapeClicked {
     
     func resetBoard() {
         
-        //give player points for beating previous level
         playerPoints += level * Int(timer.totalSeconds)
-        //reset timer for new level
         timer.restartTimer(duration: 30 - CGFloat(level * 3))
-        //increase level
         level += 1
         
-        //ensure shapes on board is empty at start of new level
         shapesOnBoard = []
         
         var i = 0 //used to escape the while statement below.
@@ -144,6 +157,7 @@ class Level1: SKScene, ShapeClicked {
         
         //gets the first target color and shape.
         getPlayerTargets()
+        
     }
     
     func getPlayerTargets() {
@@ -151,7 +165,6 @@ class Level1: SKScene, ShapeClicked {
         //makes sure that at least one
         //shape is on the board
         if shapesOnBoard.count == 0 {
-            //reset board when player has cleared it
             resetBoard()
             return
         }
@@ -173,16 +186,15 @@ class Level1: SKScene, ShapeClicked {
         
         var randomIndex = 0 
         
-        //the random index determines how many shapes & colors
-        //to choose from for each level.
         switch level {
-            case 1: randomIndex = Int.random(in: 0...1)
-            case 2: randomIndex = Int.random(in: 0...2)
-            case 3: randomIndex = Int.random(in: 0...3)
-            case 4: randomIndex = Int.random(in: 0...3)
-            case 5: randomIndex = Int.random(in: 0...3)
             
-            default: print("no levels beyond 5")
+        case 1: randomIndex = Int.random(in: 0...1)
+        case 2: randomIndex = Int.random(in: 0...2)
+        case 3: randomIndex = Int.random(in: 0...3)
+        case 4: randomIndex = Int.random(in: 0...3)
+        case 5: randomIndex = Int.random(in: 0...3)
+            
+        default: print("no levels beyond 5")
         }
         
         let randomShape = shapes[randomIndex]
@@ -196,7 +208,7 @@ class Level1: SKScene, ShapeClicked {
         var randomIndex = 0 
         
         switch level {
-        
+            
         case 1: randomIndex = Int.random(in: 0...1)
         case 2: randomIndex = Int.random(in: 0...2)
         case 3: randomIndex = Int.random(in: 0...3)
@@ -204,7 +216,6 @@ class Level1: SKScene, ShapeClicked {
         case 5: randomIndex = Int.random(in: 0...3)
             
         default: print("no levels beyond 5")
-        
         }
         
         let randomColor = colors[randomIndex]
@@ -225,7 +236,11 @@ class Level1: SKScene, ShapeClicked {
     func shapeClicked(shape: ShapeClass) {
         
         
+        
         if targetShape == shape.shapeShape && targetColor == shape.color && shape.value == targetValue {
+            
+            let generator = UIImpactFeedbackGenerator(style: .light)
+            generator.impactOccurred()
             
             //if the shape clicked matches the shape, color and value
             //of the target then do something positive for the player.
@@ -236,28 +251,63 @@ class Level1: SKScene, ShapeClicked {
             
         } else {
             
-            timer.totalSeconds -= CGFloat(1 * level)
-            //I don't know what to do here yet... something negative maybe?
+            //add haptic (heavy is used here to indicate incorrect guess
+            let generator = UIImpactFeedbackGenerator(style: .heavy)
+            generator.impactOccurred()
             
+            //added a shake effect here to show a wrong guess
+            let shake = SKAction.shake(duration: 0.3, amplitudeX: 50, amplitudeY: 50)
+            shape.run(shake)
+            
+            //penalty for incorrect guess loss of time and points
+            timer.totalSeconds -= CGFloat(1 * level)
+            playerPoints -= level * 2
         }
     }
     
     override func update(_ currentTime: TimeInterval) {
         
+        //this is used to control what elements are displayed 
+        //on the main menu.
+        if gameState == "PLAYING" {
+            isPlaying = true
+        } else {
+            isPlaying = false
+        }
+        
         //update the timer
         timerCount = timer.totalSeconds
         
-        //player wins when they clear five levels
         if level > 5 {
+            
+            if playerPoints > currentHighScore {
+                highScore = playerPoints
+                UserDefaults().set(highScore, forKey: "highScore")
+            }
             gameState = "WIN"
         }
         
-        //player loses if the timer hits zero
+        
         if timer.totalSeconds <= 0 {
             gameState = "LOSS"
         }
-        
     }
-    
-    
+}
+
+//This extension handles creating a simple shaking animation for an
+//incorrect guess by the player.
+extension SKAction {
+    class func shake(duration:CGFloat, amplitudeX:Int = 3, amplitudeY:Int = 3) -> SKAction {
+        let numberOfShakes = duration / 0.015 / 2.0
+        var actionsArray:[SKAction] = []
+        for _ in 1...Int(numberOfShakes) {
+            let dx = CGFloat(arc4random_uniform(UInt32(amplitudeX))) - CGFloat(amplitudeX / 2)
+            let dy = CGFloat(arc4random_uniform(UInt32(amplitudeY))) - CGFloat(amplitudeY / 2)
+            let forward = SKAction.moveBy(x: dx, y:dy, duration: 0.015)
+            let reverse = forward.reversed()
+            actionsArray.append(forward)
+            actionsArray.append(reverse)
+        }
+        return SKAction.sequence(actionsArray)
+    }
 }
