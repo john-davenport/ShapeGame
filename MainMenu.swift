@@ -3,7 +3,9 @@ import SpriteKit
 
 class MainMenu: SKScene {
     
+    
     @Binding var gameState: String 
+    
     
     init(gameState: Binding<String>) {
         
@@ -18,7 +20,6 @@ class MainMenu: SKScene {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     var startButton = SKSpriteNode()
     var startButtonLabel = SKLabelNode()
     
@@ -27,9 +28,8 @@ class MainMenu: SKScene {
     
     override func didMove(to view: SKView) {
         
-        
         startButton = SKSpriteNode(color: .blue, size: CGSize(width: 350, height: 100))
-        startButton.position = CGPoint(x: 300, y: 400)
+        startButton.position = CGPoint(x: 300, y: 360)
         startButton.name = "startButton"
         addChild(startButton)
         
@@ -40,16 +40,15 @@ class MainMenu: SKScene {
         startButton.addChild(startButtonLabel)
         
         highScoreButton = SKSpriteNode(color: .red, size: CGSize(width: 350, height: 100))
-        highScoreButton.position = CGPoint(x: 300, y: 200)
+        highScoreButton.position = CGPoint(x: 300, y: 220)
         highScoreButton.name = "highScore"
         addChild(highScoreButton)
         
-        highScoreButtonLabel.text = "High Scores"
+        highScoreButtonLabel.text = "High Score"
         highScoreButtonLabel.fontSize = 40
         highScoreButtonLabel.fontName = "American Typewriter Bold"
         highScoreButtonLabel.position = CGPoint(x: 0, y: -15)
         highScoreButton.addChild(highScoreButtonLabel)
-        
         
     }
     
@@ -79,16 +78,7 @@ class MainMenu: SKScene {
                 generator.impactOccurred()
                 
                 gameState = "HIGHSCORE"
-                
             }
-            
-            
         }
-        
-        
-        
-        
     }
-    
-    
 }

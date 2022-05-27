@@ -48,6 +48,7 @@ class Level1: SKScene, ShapeClicked {
     var level = 1
     var highScore = Int()
     var currentHighScore = Int()
+    var levelClearPerfect = Bool()
     
     //Array of possible colors in the game - note 
     //this string is the first part of the asset's
@@ -80,9 +81,21 @@ class Level1: SKScene, ShapeClicked {
                          CGPoint(x: 500, y: 300)
     ]
     
+    let startPositions = [CGPoint(x: 700, y: -100),
+                         CGPoint(x: -700, y: 500),
+                         CGPoint(x: 700, y: -300),
+                         CGPoint(x: 400, y: 700),
+                         CGPoint(x: 100, y: -700),
+                         CGPoint(x: 200, y: 700),
+                         CGPoint(x: -700, y: 700),
+                         CGPoint(x: 500, y: -700),
+                         CGPoint(x: 300, y: 700)
+    ]
+    
     
     override func didMove(to view: SKView) {
         
+        levelClearPerfect = true
         currentHighScore = UserDefaults().integer(forKey: "highScore")
         
         //initialize timer and start it when level loads
@@ -106,7 +119,8 @@ class Level1: SKScene, ShapeClicked {
             let randomShape = getRandomShape()
             let textureString = randomShape
             shape = ShapeClass(texture: SKTexture(imageNamed: textureString), color: randomColor, size: CGSize(width: 150, height: 150))
-            shape.position = gridPositions[i]
+            shape.position = startPositions.randomElement()!
+            shape.run(SKAction.move(to: gridPositions[i], duration: 0.25))
             shape.delegate = self
             //shape.shapeColor = randomColor
             shape.shapeShape = randomShape
@@ -127,8 +141,19 @@ class Level1: SKScene, ShapeClicked {
     
     func resetBoard() {
         
-        playerPoints += level * Int(timer.totalSeconds)
-        timer.restartTimer(duration: 30 - CGFloat(level * 3))
+        let levelClearBonus = (level * 3) * Int(timer.totalSeconds)
+        
+        if levelClearPerfect {
+            print("perfect clear")
+            playerPoints += levelClearBonus * 2
+        } else {
+            print("missed a shape")
+            playerPoints += levelClearBonus
+        }
+        
+        levelClearPerfect = true
+        
+        timer.restartTimer(duration: 30 - CGFloat(level * 2))
         level += 1
         
         shapesOnBoard = []
@@ -141,7 +166,8 @@ class Level1: SKScene, ShapeClicked {
             let randomShape = getRandomShape()
             let textureString = randomShape
             shape = ShapeClass(texture: SKTexture(imageNamed: textureString), color: randomColor, size: CGSize(width: 150, height: 150))
-            shape.position = gridPositions[i]
+            shape.position = startPositions.randomElement()!
+            shape.run(SKAction.move(to: gridPositions[i], duration: 0.25))
             shape.delegate = self
             //shape.shapeColor = randomColor
             shape.shapeShape = randomShape
@@ -235,17 +261,15 @@ class Level1: SKScene, ShapeClicked {
     //clicked by the player on the gameboard.
     func shapeClicked(shape: ShapeClass) {
         
-        
-        
         if targetShape == shape.shapeShape && targetColor == shape.color && shape.value == targetValue {
             
             let generator = UIImpactFeedbackGenerator(style: .light)
             generator.impactOccurred()
             
-            //if the shape clicked matches the shape, color and value
+            //if the shape clicked matches the sha!!pe, color and value
             //of the target then do something positive for the player.
             shape.removeFromParent()
-            playerPoints += 10
+            playerPoints += (level * 10)
             shapesOnBoard.remove(at: shapeIndex)
             getPlayerTargets()
             
@@ -261,7 +285,9 @@ class Level1: SKScene, ShapeClicked {
             
             //penalty for incorrect guess loss of time and points
             timer.totalSeconds -= CGFloat(1 * level)
-            playerPoints -= level * 2
+            playerPoints -= level * 5
+            levelClearPerfect = false
+            
         }
     }
     
@@ -279,16 +305,17 @@ class Level1: SKScene, ShapeClicked {
         timerCount = timer.totalSeconds
         
         if level > 5 {
-            
             if playerPoints > currentHighScore {
                 highScore = playerPoints
                 UserDefaults().set(highScore, forKey: "highScore")
             }
+            UserDefaults().set(playerPoints, forKey: "finalScore")
+            isPlaying = false
             gameState = "WIN"
         }
         
-        
         if timer.totalSeconds <= 0 {
+            isPlaying = false
             gameState = "LOSS"
         }
     }

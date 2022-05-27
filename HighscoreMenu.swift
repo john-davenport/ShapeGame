@@ -25,20 +25,20 @@ class HighScore: SKScene {
     
     override func didMove(to view: SKView) {
         
-        highScoreHeading.text = "HIGH SCORE"
+        highScoreHeading.text = "HIGH SCORE:"
         highScoreHeading.fontSize = 55
         highScoreHeading.fontName = "American Typewriter"
-        highScoreHeading.position = CGPoint(x: 300, y: 350)
+        highScoreHeading.position = CGPoint(x: 300, y: 400)
         addChild(highScoreHeading)
         
         highScoreLabel.text = "\(UserDefaults().integer(forKey: "highScore"))"
-        highScoreLabel.fontSize = 30
+        highScoreLabel.fontSize = 35
         highScoreLabel.fontName = "American Typewriter"
-        highScoreLabel.position = CGPoint(x: 300, y: 300)
+        highScoreLabel.position = CGPoint(x: 300, y: 350)
         addChild(highScoreLabel)
         
         startButton = SKSpriteNode(color: .blue, size: CGSize(width: 350, height: 100))
-        startButton.position = CGPoint(x: 300, y: 100)
+        startButton.position = CGPoint(x: 300, y: 220)
         startButton.name = "startButton"
         addChild(startButton)
         

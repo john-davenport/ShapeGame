@@ -23,6 +23,7 @@ class ShapeClass: SKSpriteNode {
         super.init(texture: texture, color: color, size: size)
         
         label.fontSize = 55
+        label.fontName = "American Typewriter Bold"
         label.fontColor = .white
         self.addChild(label)
         label.position = CGPoint(x: 0, y: 0)
